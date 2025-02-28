@@ -1,23 +1,43 @@
-import React from 'react';
+import React from "react";
 
-import BlogHero from '@/components/BlogHero';
+import { MDXRemote } from "next-mdx-remote/rsc";
+const DivisionGroupsDemo = dynamic(
+  () => import("@/components/DivisionGroupsDemo"),
+  { loading: Spinner }
+);
 
-import styles from './postSlug.module.css';
+const CircularColorsDemo = dynamic(
+  () => import("@/components/CircularColorsDemo"),
+  { loading: Spinner }
+);
 
-function BlogPost() {
+import BlogHero from "@/components/BlogHero";
+import { loadBlogPostWithCache } from "@/helpers/load-blog-post-with-cache";
+
+import styles from "./postSlug.module.css";
+import CodeSnippet from "@/components/CodeSnippet";
+import dynamic from "next/dynamic";
+import Spinner from "@/components/Spinner";
+
+async function BlogPost({ params }) {
+  const { postSlug } = await params;
+  const post = await loadBlogPostWithCache(postSlug);
+
   return (
     <article className={styles.wrapper}>
       <BlogHero
-        title="Example post!"
-        publishedOn={new Date()}
+        title={post.frontmatter.title}
+        publishedOn={post.frontmatter.publishedOn}
       />
       <div className={styles.page}>
-        <p>This is where the blog post will go!</p>
-        <p>
-          You will need to use <em>MDX</em> to render all of
-          the elements created from the blog post in this
-          spot.
-        </p>
+        <MDXRemote
+          source={post.content}
+          components={{
+            pre: CodeSnippet,
+            DivisionGroupsDemo,
+            CircularColorsDemo,
+          }}
+        />
       </div>
     </article>
   );

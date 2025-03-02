@@ -18,10 +18,14 @@ import styles from "./postSlug.module.css";
 import CodeSnippet from "@/components/CodeSnippet";
 import dynamic from "next/dynamic";
 import Spinner from "@/components/Spinner";
+import { notFound } from "next/navigation";
 
 async function BlogPost({ params }) {
   const { postSlug } = await params;
   const post = await loadBlogPostWithCache(postSlug);
+  if (!post) {
+    return notFound();
+  }
 
   return (
     <article className={styles.wrapper}>
